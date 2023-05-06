@@ -2,8 +2,9 @@ import wave
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fft(file_name):
-    with wave.open(file_name, 'r') as wav_file:
+def fft(file_path, file_name, save=False):
+    FILE = file_path + file_name
+    with wave.open(FILE, 'r') as wav_file:
         # Extrahieren von Informationen aus der Wave-Datei
         frames = wav_file.readframes(-1)
         sample_rate = wav_file.getframerate()
@@ -19,7 +20,8 @@ def fft(file_name):
     # Berechnen der Fourier-Transformation
     freq = np.fft.rfftfreq(len(frames), d=1/sample_rate)
     freq_amp = np.abs(np.fft.rfft(frames))
-    print(f"{file_name} - sample_rate: {sample_rate} - num_channels: {num_channels} - sample_width: {sample_width}")
+
+    print(f"{FILE} - sample_rate: {sample_rate} - num_channels: {num_channels} - sample_width: {sample_width}")
 
     # Plotten der Frequenzamplitude
     plt.figure()
@@ -27,5 +29,11 @@ def fft(file_name):
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Amplitude')
     plt.title(f"Frequency Amplitude")
-    # plt.savefig(f"fourier\\{file_name}\\fourier.png") # TODO create folder if not existing
+    if save:
+        # not tested
+        
+        PATH = f"fourier"
+        if not os.path.exists(PATH):
+            os.mkdir(PATH)
+        plt.savefig(f"{PATH}\\fourier_{file_name}.png")
     plt.show()
