@@ -31,8 +31,8 @@ def fft(file_path, save=False):
     plt.ylabel('Amplitude')
     plt.title(f"Frequency Amplitude")
     if save:
-        PATH = f"visualisations\\fourier"
+        PATH = f"visualisations/fourier"
         if not os.path.exists(PATH):
             os.mkdir(PATH)
-        plt.savefig(f"{PATH}\\fourier_{file_name}.png")
+        plt.savefig(f"{PATH}/fourier_{file_name}.png")
     plt.show()
