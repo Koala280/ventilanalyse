@@ -5,6 +5,7 @@ import os
 
 def fft(file_path, save=False):
     file_name = os.path.split(file_path)[1]
+
     with wave.open(file_path, 'r') as wav_file:
         # Extrahieren von Informationen aus der Wave-Datei
         frames = wav_file.readframes(-1)
@@ -30,9 +31,11 @@ def fft(file_path, save=False):
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Amplitude')
     plt.title(f"Frequency Amplitude")
+    
     if save:
         PATH = f"visualisations/fourier"
         if not os.path.exists(PATH):
             os.mkdir(PATH)
         plt.savefig(f"{PATH}/fourier_{file_name}.png")
-    plt.show()
+    else:
+        plt.show()
