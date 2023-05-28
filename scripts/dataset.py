@@ -69,7 +69,7 @@ class AudioDataset(Dataset):
         spec_transforms = T.FrequencyMasking(freq_mask_param=80)
         melspec = spec_transforms(melspec)
         """
-        return melspec, label
+        return melspec, torch.tensor(self.labels[index]).float()
 
     def _crop(self, audio):
         if audio.shape[1] > self.num_samples:

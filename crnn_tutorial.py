@@ -25,7 +25,7 @@ from scripts.dataset import AudioDataset
 
 AUDIO_DIR = "audios/labeled/"
 
-dict_genres = {'positive': 0, 'negative': 1, 'noise': 2}
+dict_genres = {'positive': 0, 'negative': 1}
 
 reverse_map = {v: k for k, v in dict_genres.items()}
 
@@ -101,7 +101,6 @@ class CNNNetworkTutorial(nn.Module):
         self.flatten = nn.Flatten()
         self.linear = nn.Linear(self.hidden4 * 5 * 4, num_classes)
         self.softmax = nn.Softmax(dim=1)
-        self.to(DEVICE)
 
     def forward(self, input_data):
         x = self.conv1(input_data)
@@ -122,7 +121,6 @@ def create_data_loader(train_data, batch_size):
 def train_single_epoch(model, data_loader, loss_fn, optimizer):
     for input, target in data_loader:
         input, target = input.to(DEVICE), target.to(DEVICE)
-
         # calculate loss
         prediction = model(input)
         loss = loss_fn(prediction, target)
@@ -151,17 +149,16 @@ for label in dict_genres.keys():
             file_path = AUDIO_DIR + label + "/" + folder + "/" + file
             positive = int(label == "positive")
             negative = int(label == "negative")
-            noise = int(label == "noise")
             data.append((file_path, positive,
                         negative))
 
 file_path, positive, negative = zip(*data)
-df = pd.DataFrame({"file_path": file_path, "positive": positive, "negative": negative, "noise": noise})
+df = pd.DataFrame({"file_path": file_path, "positive": positive, "negative": negative})
 
 print(df.head(5))
 
 BATCH_SIZE = 1
-EPOCHS = 1
+EPOCHS = 10
 LEARNING_RATE = 0.001
 SAVE = False
 
