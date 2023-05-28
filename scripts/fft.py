@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 def fft(file_path, save=False):
-    file_name = os.path.split(file_path)[1]
+    file_name = os.path.split(file_path)[1][:-4]
 
     with wave.open(file_path, 'r') as wav_file:
         # Extrahieren von Informationen aus der Wave-Datei
