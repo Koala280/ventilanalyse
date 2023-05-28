@@ -19,8 +19,8 @@ class AudioDataset(Dataset):
         self.num_samples = target_sample_rate * audio_length
 
         self.melspectrogram = T.MelSpectrogram(sample_rate=self.target_sample_rate,
-                                               n_mels=128,
-                                               n_fft=2048,
+                                               n_mels=64,
+                                               n_fft=1024,
                                                hop_length=512)#.to(DEVICE)
         
         
