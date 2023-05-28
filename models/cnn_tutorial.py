@@ -1,8 +1,4 @@
-if torch.cuda.is_available():
-    DEVICE = "cuda"
-else:
-    DEVICE = "cpu"
-print(DEVICE)
+import torch.nn as nn
 
 class CNNNetworkTutorial(nn.Module):
     def __init__(self,

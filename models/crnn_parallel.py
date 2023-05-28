@@ -13,7 +13,7 @@ class CRNNNetwork(nn.Module):
                  L2_regularization = 0.001,
                  dense_size1 = 256,
                  num_classes = 2):
-        super(CRNNNetwork, self).__init__()
+        super().__init__()
         self.input = 1 #mono
         self.hidden1 = hidden1
         self.hidden2 = hidden2

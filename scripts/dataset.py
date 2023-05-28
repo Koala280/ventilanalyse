@@ -20,7 +20,7 @@ class AudioDataset(Dataset):
 
         self.melspectrogram = T.MelSpectrogram(sample_rate=self.target_sample_rate,
                                                n_mels=64,
-                                               n_fft=1024,
+                                               n_fft=2048,
                                                hop_length=512)#.to(DEVICE)
         
         
@@ -69,7 +69,7 @@ class AudioDataset(Dataset):
         spec_transforms = T.FrequencyMasking(freq_mask_param=80)
         melspec = spec_transforms(melspec)
         """
-        return melspec, torch.tensor(self.labels[index]).float()
+        return melspec, torch.tensor(label).float()
 
     def _crop(self, audio):
         if audio.shape[1] > self.num_samples:
