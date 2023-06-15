@@ -2,9 +2,9 @@ import torch.nn as nn
 
 class CNNNetworkTutorial(nn.Module):
     def __init__(self,
-                 hidden1 = 16,
-                 hidden2 = 32,
-                 hidden3 = 64,
+                 hidden1 = 64,
+                 hidden2 = 128,
+                 hidden3 = 256,
                  hidden4 = 128,
                  num_classes = 2):
         super().__init__()

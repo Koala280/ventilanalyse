@@ -1,9 +1,6 @@
-# Deep Learning framework
 import torch
 from torch.utils.data import Dataset
 import torch.nn.functional as F
-
-# Audio processing
 import torchaudio
 import torchaudio.transforms as T
 
@@ -35,7 +32,7 @@ class AudioDataset(Dataset):
 
         # Load audio from file to waveform
         audio, sample_rate = torchaudio.load(audio_path)
-
+        #print("sr:",sample_rate)
         # register to cpu/gpu
         audio = audio#.to(DEVICE)
 
