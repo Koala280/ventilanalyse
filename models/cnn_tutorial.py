@@ -2,10 +2,10 @@ import torch.nn as nn
 
 class CNNNetworkTutorial(nn.Module):
     def __init__(self,
-                 hidden1 = 64,
-                 hidden2 = 128,
-                 hidden3 = 256,
-                 hidden4 = 128,
+                 hidden1 = 5,
+                 hidden2 = 5,
+                 hidden3 = 5,
+                 hidden4 = 5,
                  num_classes = 2):
         super().__init__()
         self.input = 1 #mono
@@ -64,8 +64,8 @@ class CNNNetworkTutorial(nn.Module):
         )
 
         self.flatten = nn.Flatten()
-        self.linear = nn.Linear(self.hidden4 * 5 * 4, num_classes)
-        self.softmax = nn.Softmax(dim=1)
+        self.linear = nn.Linear(self.hidden2 * 5 * 4, num_classes)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input_data):
         x = self.conv1(input_data)
@@ -74,6 +74,6 @@ class CNNNetworkTutorial(nn.Module):
         x = self.conv4(x)
         x = self.flatten(x)
         logits = self.linear(x)
-        prediction = self.softmax(logits)
+        prediction = self.sigmoid(logits)
 
         return prediction

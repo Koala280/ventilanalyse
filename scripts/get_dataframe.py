@@ -1,16 +1,15 @@
 import os
 import pandas as pd
 
-AUDIO_DIR = "audios/labeled/"
 classes = {'positive': 0, 'negative': 1}
 
-def get_dataframe():
+def get_dataframe(audio_dir="audios/labeled/"):
     data = []
 
     for label in classes.keys():
-        for folder in os.listdir(AUDIO_DIR + label):
-            for file in os.listdir(AUDIO_DIR + label + "/" + folder):
-                file_path = AUDIO_DIR + label + "/" + folder + "/" + file
+        for folder in os.listdir(audio_dir + label):
+            for file in os.listdir(audio_dir + label + "/" + folder):
+                file_path = audio_dir + label + "/" + folder + "/" + file
                 positive = int(label == "positive")
                 negative = int(label == "negative")
                 data.append((file_path, positive, negative))
@@ -38,4 +37,4 @@ def get_balanced_dataframe():
     # Shuffle the DataFrame
     balanced_df = balanced_df.sample(frac=1).reset_index(drop=True)
 
-    return balanced_df    
+    return balanced_df
