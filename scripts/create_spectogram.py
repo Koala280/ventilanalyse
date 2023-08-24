@@ -1,4 +1,5 @@
 import librosa
+import numpy as np
 
 def create_spectogram(audio_path):
     y, sr = librosa.load(audio_path)
