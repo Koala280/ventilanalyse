@@ -11,17 +11,27 @@ class AudioDataset(Dataset):
     def __init__(self, 
                 df,
                 audio_length = 1, #max length of negative sample = 7.1 seconds
-                target_sample_rate=22050):
+                target_sample_rate = 22050,
+                convert_amplitude_to_db = True):
         self.df = df
         self.file_paths = df['file_path'].values
         self.labels = df[['positive', 'negative']].values
         self.target_sample_rate = target_sample_rate
         self.num_samples = target_sample_rate * audio_length
+        self.convert_amplitude_to_db = convert_amplitude_to_db
+        
 
-        self.melspectrogram = T.MelSpectrogram(sample_rate=self.target_sample_rate,
-                                               n_mels=64,
-                                               n_fft=2048,
-                                               hop_length=512)#.to(DEVICE)
+        # self.melspectrogram = T.MelSpectrogram(sample_rate=self.target_sample_rate,
+        #                                        n_mels=64,
+        #                                        n_fft=2048,
+        #                                        hop_length=512)#.to(DEVICE)
+        self.melspectrogram = T.MFCC(sample_rate=self.target_sample_rate,
+                                               n_mfcc=60,
+                                               dct_type=2,
+                                               norm="ortho",
+                                               log_mels=True)
+        
+        self.amplitude_to_db = T.AmplitudeToDB()
         
         
     def __len__(self):
@@ -59,6 +69,10 @@ class AudioDataset(Dataset):
         wave_transforms = T.PitchShift(sample_rate, 4)
         audio = wave_transforms(audio)
         """
+        
+        # Convert amplitude to dB
+        if self.convert_amplitude_to_db:
+            audio = self.amplitude_to_db(audio)
 
         # Convert to Mel spectrogram
         melspec = self.melspectrogram(audio)
