@@ -64,7 +64,9 @@ class CNNNetworkTutorial(nn.Module):
         )
 
         self.flatten = nn.Flatten()
-        self.linear = nn.Linear(self.hidden2 * 5 * 4, num_classes)
+        #self.linear = nn.Linear(self.hidden2 * 5 * 4, num_classes)
+        # in case dimensions don't work
+        self.linear = nn.Linear(self.hidden2 * 5 * 4 * 2, num_classes)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input_data):

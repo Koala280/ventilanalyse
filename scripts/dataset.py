@@ -8,17 +8,31 @@ class AudioDataset(Dataset):
     def __init__(self, 
                 df,
                 audio_length = 1, #max length of negative sample = 7.1 seconds
-                target_sample_rate=22050):
+                target_sample_rate = 22050,
+                melspectrogram_to_mfcc = False,
+                convert_amplitude_to_db = False):
         self.df = df
         self.file_paths = df['file_path'].values
         self.labels = df[['positive', 'negative']].values
         self.target_sample_rate = target_sample_rate
         self.num_samples = target_sample_rate * audio_length
-
+        self.melspectrogram_to_mfcc = melspectrogram_to_mfcc
+        self.convert_amplitude_to_db = convert_amplitude_to_db
+        
+        # Normal Mel-Spectrogram
         self.melspectrogram = T.MelSpectrogram(sample_rate=self.target_sample_rate,
                                                n_mels=64,
                                                n_fft=2048,
                                                hop_length=512)#.to(DEVICE)
+
+        # Mel-frequency cepstrum coefficients
+        self.mfcc = T.MFCC(sample_rate=self.target_sample_rate,
+                                               n_mfcc=60,
+                                               dct_type=2,
+                                               norm="ortho",
+                                               log_mels=True)
+        
+        self.amplitude_to_db = T.AmplitudeToDB()
         
         
     def __len__(self):
@@ -56,9 +70,16 @@ class AudioDataset(Dataset):
         wave_transforms = T.PitchShift(sample_rate, 4)
         audio = wave_transforms(audio)
         """
+        
+        # Convert amplitude to dB
+        if self.convert_amplitude_to_db:
+            audio = self.amplitude_to_db(audio)
 
-        # Convert to Mel spectrogram
-        melspec = self.melspectrogram(audio)
+        # Convert to Mel spectrogram or MFCC
+        if self.melspectrogram_to_mfcc:
+            melspec = self.mfcc(audio)
+        else:
+            melspec = self.melspectrogram(audio)
         
         # Add any data augmentations for spectrogram you like here
         # (e.g., Mixup, cutmix, time masking, frequency masking)
