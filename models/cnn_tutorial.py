@@ -64,15 +64,10 @@ class CNNNetworkTutorial(nn.Module):
         )
 
         self.flatten = nn.Flatten()
-<<<<<<< HEAD
-        self.linear = nn.Linear(self.hidden4 * 5 * 4 * 2, num_classes)
-        
-        self.softmax = nn.Sigmoid()
-        # self.softmax = nn.Softmax(dim=1)
-=======
-        self.linear = nn.Linear(self.hidden2 * 5 * 4, num_classes)
+        #self.linear = nn.Linear(self.hidden2 * 5 * 4, num_classes)
+        # in case dimensions don't work
+        self.linear = nn.Linear(self.hidden2 * 5 * 4 * 2, num_classes)
         self.sigmoid = nn.Sigmoid()
->>>>>>> a63bfe20a6ab9d1f8e563a7d0c0a104f2e20697a
 
     def forward(self, input_data):
         x = self.conv1(input_data)
