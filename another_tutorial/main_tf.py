@@ -79,43 +79,26 @@ hist = model.fit(train, epochs=4, validation_data=test)
 
 # %%
 X_test, y_test = test.as_numpy_iterator().next()
-print(X_test.shape)
-print(y_test.shape)
 
 
 # %%
 yhat = model.predict(X_test)
-yhat[:3]
-
-# %% [markdown]
-# ## 8.2 Convert Logits to Classes 
 
 # %%
 yhat = [1 if prediction > 0.5 else 0 for prediction in yhat]
-yhat
-
-# %%
-print(tf.math.reduce_sum(yhat))
-print(tf.math.reduce_sum(y_test))
 
 # %%
 print(yhat)
 print(y_test.astype(int))
 
-# %% [markdown]
-# # 9. Build Forest Parsing Functions
-
-# %% [markdown]
-# ## 9.1 Load up MP3s
-
 # %%
+""" TODO wav_path als parameter """
 wav_path = os.path.join('./', 'audios', 'test', 'rec2.wav')
-#wav_path = os.path.join('./', 'audios', 'test', 'rec2.wav')
+#wav_path = os.path.join('./', 'audios', 'test', 'rec6.wav')
 #wav_path = os.path.join('./', 'audios', 'test', 'rec8.wav')
 
 # %%
 wav = load_wav_16k_mono(wav_path)
-wav.shape
 
 # %%
 audio_slices = tf.keras.utils.timeseries_dataset_from_array(wav, wav, sequence_length=16000, sequence_stride=16000, batch_size=1)
@@ -124,16 +107,7 @@ audio_slices = tf.keras.utils.timeseries_dataset_from_array(wav, wav, sequence_l
 samples, index = audio_slices.as_numpy_iterator().next()
 
 # %%
-len(audio_slices)
-
-# %%
-samples.shape
-
-# %% [markdown]
-# ## 9.2 Build Function to Convert Clips into Windowed Spectrograms
-
-# %%
-def preprocess_2(sample, index):
+def preprocess_prediction(sample, index):
     sample = sample[0]
     zero_padding = tf.zeros([16000] - tf.shape(sample), dtype=tf.float32)
     wav = tf.concat([zero_padding, sample],0)
@@ -142,84 +116,28 @@ def preprocess_2(sample, index):
     spectrogram = tf.expand_dims(spectrogram, axis=2)
     return spectrogram
 
-# %% [markdown]
-# ## 9.3 Convert Longer Clips into Windows and Make Predictions
-
 # %%
 audio_slices = tf.keras.utils.timeseries_dataset_from_array(wav, wav, sequence_length=16000, sequence_stride=16000, batch_size=1)
-audio_slices = audio_slices.map(preprocess_2)
+audio_slices = audio_slices.map(preprocess_prediction)
 audio_slices = audio_slices.batch(64)
 
+""" TODO Hier Modell Laden vllt auch als parameter """
+#model = tf.load("model.h5")
+
+
 # %%
+""" TODO Schwellenwert als parameter """
+SCHWELLENWERT = 0.52
 yhat = model.predict(audio_slices)
-yhat = [1 if prediction > 0.52 else 0 for prediction in yhat]
-yhat
-
-# %% [markdown]
-# ## 9.4 Group Consecutive Detections
-
+yhat = [1 if prediction > SCHWELLENWERT else 0 for prediction in yhat]
+print("prediction:", yhat)
+""" 
 # %%
 from itertools import groupby
 
 # %%
 yhat = [key for key, group in groupby(yhat)]
-calls = tf.math.reduce_sum(yhat).numpy()
+broken_air = tf.math.reduce_sum(yhat).numpy() """
 
 # %%
-calls
-
-# %% [markdown]
-# # 10. Make Predictions
-
-# %% [markdown]
-# ## 10.1 Loop over all recordings and make predictions
-
-# %%
-results = {}
-for file in os.listdir(os.path.join('data', 'Forest Recordings')):
-    FILEPATH = os.path.join('data','Forest Recordings', file)
-    
-    wav = load_mp3_16k_mono(FILEPATH)
-    audio_slices = tf.keras.utils.timeseries_dataset_from_array(wav, wav, sequence_length=48000, sequence_stride=48000, batch_size=1)
-    audio_slices = audio_slices.map(preprocess_mp3)
-    audio_slices = audio_slices.batch(64)
-    
-    yhat = model.predict(audio_slices)
-    
-    results[file] = yhat
-
-# %%
-results
-
-# %% [markdown]
-# ## 10.2 Convert Predictions into Classes
-
-# %%
-class_preds = {}
-for file, logits in results.items():
-    class_preds[file] = [1 if prediction > 0.99 else 0 for prediction in logits]
-class_preds
-
-# %% [markdown]
-# ## 10.3 Group Consecutive Detections
-
-# %%
-postprocessed = {}
-for file, scores in class_preds.items():
-    postprocessed[file] = tf.math.reduce_sum([key for key, group in groupby(scores)]).numpy()
-postprocessed
-
-# %% [markdown]
-# # 11. Export Results
-
-# %%
-import csv
-
-# %%
-with open('results.csv', 'w', newline='') as f:
-    writer = csv.writer(f, delimiter=',')
-    writer.writerow(['recording', 'capuchin_calls'])
-    for key, value in postprocessed.items():
-        writer.writerow([key, value])
-
-
+#print("Funktionierende audios erkannt:", broken_air)
