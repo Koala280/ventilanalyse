@@ -1,37 +1,56 @@
 """
-    Die .tflite Datei des Modells sollte auf dem Raspberry Pi im selben Verzeichnis sein
+    The .tflite file of the model must be in the same file directorey on the Raspberry Pi
 """
 
-
-"""
-Connect a resistor and LED to board pin 8 and run this script.
-Whenever you say "stop", the LED should flash briefly
-"""
-
+# Processing
 import tensorflow as tf
 import tensorflow_io as tfio
 import numpy as np
 import scipy.signal
-import sys
-import getopt
-
+# Inference
 from tflite_runtime.interpreter import Interpreter
+# CLI
+from argparse import ArgumentParser, ArgumentTypeError
 
-# Default values for opts and args
-prediction_threshold = 0.52 # 0 to 1.0
-valve_time = 200 # in ms
-cycle_duration = 250 # in ms
 
-# Get script opts and args
-opts, args = getopt.getopt(sys.argv[1:], "t:v:c", ['threshold','valve','cycle'])
+"""
+CLI handling
+----------------------------------------------------------------------
+"""
 
-for opt, arg in opts:
-    if opt == '-t':
-        prediction_threshold = arg
-    if opt == '-v':
-        valve_time = arg
-    if opt == '-c':
-        cycle_duration = arg
+# Type for checking whether a float value is in the specified range    
+def float_range(minimum, maximum):
+    def float_range_checker(arg):
+        try:
+            value = float(arg)
+        except ValueError:    
+            raise ArgumentTypeError("must be a floating point number")
+        if value < minimum or value > maximum:
+            raise ArgumentTypeError("must be in range [" + str(minimum) + " .. " + str(maximum)+"]")
+        return value
+    return float_range_checker    
+
+parser = ArgumentParser()
+
+parser.add_argument('-t','--threshold', help='Define the threshold for the prediction values (default %(default)s)', type=float_range(0, 1), metavar=['0-1'], default=0.52)
+parser.add_argument('-v','--valve', help='Set the valve time in ms (default %(default)s)', type=int, default=200)
+parser.add_argument('-c','--cycle', help='Set the cycle duration in ms (default %(default)s)', type=int, default=250)
+parser.add_argument('-v', '--verbose', help='Prints verbose output', action='store_true')
+
+args = parser.parse_args()
+
+if args.valve >= args.cycle:
+    raise ArgumentTypeError('valve time must be smaller than cycle duration')
+
+
+"""
+Parameters and variables
+----------------------------------------------------------------------
+"""
+# Values for the CLI arguments
+prediction_threshold = args.threshold
+valve_time = args.valve
+cycle_duration = args.cycle
 
 # Calculate pause between each valve operation
 valve_pause = cycle_duration - valve_time
@@ -42,11 +61,21 @@ sample_rate = 16000
 resample_rate = 16000
 model_path = 'audio_classification_lite.tflite'
 
+"""
+ML model
+----------------------------------------------------------------------
+"""
+
 # Load model (interpreter)
 interpreter = Interpreter(model_path)
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
+
+"""
+Defining functions and methods
+----------------------------------------------------------------------
+"""
 
 # convert to mono and resample
 def load_wav_16k_mono(filename):
@@ -56,9 +85,9 @@ def load_wav_16k_mono(filename):
     wav, sample_rate = tf.audio.decode_wav(file_contents, desired_channels=1)
     # Removes trailing axis
     wav = tf.squeeze(wav, axis=-1)
-    # sample_rate = tf.cast(sample_rate, dtype=tf.int64)
-    # # Goes from 44100Hz to 16000hz - amplitude of the audio signal
-    # wav = tfio.audio.resample(wav, rate_in=sample_rate, rate_out=16000)
+    sample_rate = tf.cast(sample_rate, dtype=tf.int64)
+    # Goes from 44100Hz to 16000hz - amplitude of the audio signal
+    wav = tfio.audio.resample(wav, rate_in=sample_rate, rate_out=16000)
     return wav
 
 
