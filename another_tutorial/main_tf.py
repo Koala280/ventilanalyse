@@ -6,8 +6,14 @@ import tensorflow_io as tfio
 from split_audio_by_duration import split_audio_by_duration 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, Dense, Flatten
+import datetime
 
+""" 
+POSITIVE: 1
+NEGATIVE: 0
+"""
 
+SAVE_MODEL = True
 
 # %%
 def load_wav_16k_mono(filename):
@@ -77,6 +83,10 @@ model.compile('Adam', loss='BinaryCrossentropy', metrics=[tf.keras.metrics.Recal
 # %%
 hist = model.fit(train, epochs=4, validation_data=test)
 
+if SAVE_MODEL:
+    model.save(f"audio_classification_model{datetime.datetime.now().strftime('%Y.%m.%d.%H%M')}.h5")
+
+"""
 # %%
 X_test, y_test = test.as_numpy_iterator().next()
 
@@ -92,7 +102,7 @@ print(yhat)
 print(y_test.astype(int))
 
 # %%
-""" TODO wav_path als parameter """
+#TODO wav_path als parameter
 wav_path = os.path.join('./', 'audios', 'test', 'rec2.wav')
 #wav_path = os.path.join('./', 'audios', 'test', 'rec6.wav')
 #wav_path = os.path.join('./', 'audios', 'test', 'rec8.wav')
@@ -121,23 +131,17 @@ audio_slices = tf.keras.utils.timeseries_dataset_from_array(wav, wav, sequence_l
 audio_slices = audio_slices.map(preprocess_prediction)
 audio_slices = audio_slices.batch(64)
 
-""" TODO Hier Modell Laden vllt auch als parameter """
+#TODO Hier Modell Laden vllt auch als parameter
 #model = tf.load("model.h5")
 
 
 # %%
-""" TODO Schwellenwert als parameter """
+#TODO Schwellenwert als parameter
 SCHWELLENWERT = 0.52
 yhat = model.predict(audio_slices)
 yhat = [1 if prediction > SCHWELLENWERT else 0 for prediction in yhat]
 print("prediction:", yhat)
-""" 
-# %%
-from itertools import groupby
-
-# %%
-yhat = [key for key, group in groupby(yhat)]
-broken_air = tf.math.reduce_sum(yhat).numpy() """
+"""
 
 # %%
 #print("Funktionierende audios erkannt:", broken_air)

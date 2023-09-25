@@ -1,0 +1,165 @@
+    1  sudo apt-get -y update
+    2  sudo apt-get -y upgrade
+    3  sudo reboot 
+    4  sudo apt install python3-pip
+    5  sudo apt-get install idle3
+    6  [200~
+    7  ~
+    8  sudo pip3 install --upgrade adafruit-python-shell
+    9  sudo wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/i2smic.py
+   10  sudo python3 i2smic.py
+   11  sudo apt-get install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev
+   12  sudo pip3 install pyaudio matplotlib scipy
+   13  arecord -l
+   14  python3
+   15  python3 -m pip install --user sounddevice
+   16  python3 -m pip install --user scipy
+   17  git clone https://github.com/Infineon/i2s-microphone.git
+   18  cd i2s-microphone/application_examples/raspberrypi/
+   19  cd audio_processing/
+   20  nano basic_audio_processing.py 
+   21  python3 record_wav.py 
+   22  sudo pip-install numpy
+   23  sudo pip install numpy
+   24  python3 record_wav.py 
+   25  sudo pip install sounddevice
+   26  python3 record_wav.py 
+   27  cd
+   28  arecord -D plughw:1 -c2 -r 48000 -f S32_LE -t wav -V stereo -v file_stereo.wav
+   29  arecord -l
+   30  arecord --help
+   31  cd
+   32  sudo pip3 install --upgrade adafruit-python-shell
+   33  wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/i2smic.py
+   34  sudo python3 i2smic.py
+   35  ls
+   36  python3
+   37  ls
+   38  python3 read_audio.py 
+   39  [200~sudo apt-get install libatlas-base-dev
+   40  sudo apt-get install libatlas-base-dev
+   41  pip3 uninstall numpy
+   42  apt install python3-numpy
+   43  sudo pip3 uninstall numpy
+   44  sudo apt install python3-numpy
+   45  sudo apt autoremove
+   46  python3
+   47  python3 read_audio.py 
+   48  python3 read_audio_to_wav.py 
+   49  python3
+   50  python3 read_audio_to_wav.py 
+   51  python3 read_audio_to_wav.py --nsec 3 --output rec.wav --list
+   52  python3 read_audio_to_wav.py --nsec 3 --output rec.wav
+   53  python3 read_audio_to_wav.py --nsec 3 --output rec2.wav
+   54  python3 read_audio_to_wav.py --nsec 3 --output rec.wav
+   55  python3 read_audio_to_wav.py --nsec 3 --output rec3.wav
+   56  python3 read_audio_to_wav.py --nsec 3 --output rec1.wav
+   57  python3 read_audio_to_wav.py --nsec 3 --output rec2.wav
+   58  python3 read_audio_to_wav.py --nsec 3 --output rec3.wav
+   59  sudo raspi-config 
+   60  sudo reboot
+   61  ls
+   62  sudo cat /etc/wpa_supplicant/wpa_supplicant.conf 
+   63  sudo -i
+   64  sudo cat /etc/wpa_supplicant/wpa_supplicant.conf 
+   65  sudo -i
+   66  sudo cat /etc/wpa_supplicant/wpa_supplicant.conf 
+   67  sudo -i
+   68  sudo cat /etc/wpa_supplicant/wpa_supplicant.conf 
+   69  sudo less /etc/wpa_supplicant/wpa_supplicant.conf 
+   70  sudo nano /etc/wpa_supplicant/wpa_supplicant.conf 
+   71  sudo cat /etc/wpa_supplicant/wpa_supplicant.conf 
+   72  sudo reboot
+   73  python3 read_to_wav.py --nsec 20
+   74  python3 read_to_wav.py --nsec --output rec1.wav
+   75  python3 read_to_wav.py --nsec 5 --output rec1.wav
+   76  python3 read_to_wav.py --nsec 5 --output rec2.wav
+   77  3
+   78  su
+   79  ls
+   80  su
+   81  cd audio/
+   82  ls
+   83  python3 read_audio_to_wav.py --output rec1.wav --nsec 3
+   84  ls
+   85  python3 read_audio_to_wav.py --output rec1.wav --nsec 3
+   86  python3 read_audio_to_wav.py --output rec1.wav --nsec 300
+   87  python3 read_audio_to_wav.py --output rec1.wav --nsec 30
+   88  ls
+   89  cd audio
+   90  ls
+   91  ssh pi@localhost
+   92  ifconfig 
+   93  sudo ifup eth0
+   94  ifconfig 
+   95  sudo ifdown eth0
+   96  sudo ifup eth0
+   97  ifconfig 
+   98  cd /etc
+   99  cd network/
+  100  vi interfaces
+  101  sudo nano interfaces
+  102  sudo reboot
+  103  ls
+  104  cd audio 
+  105  ls
+  106  vim read_audio_to_wav.py
+  107  ls
+  108  op
+  109  htop
+  110  sudo halt
+  111  atop
+  112  nm
+  113  htop
+  114  ls
+  115  ps
+  116  ls -l
+  117  cd audio
+  118  ls
+  119  python read_audio_to_wav.py 
+  120  python read_audio_to_wav.py --output rec10.wav --nsec 3
+  121  python3 read_audio_to_wav.py --output rec10.wav --nsec 3
+  122  histoy
+  123  history
+  124  python3 read_audio_to_wav.py --output rec1yyy.wav --nsec 300
+  125  ls
+  126  cat read_audio_to_wav.py 
+  127  python3 read_audio_to_wav.py --output rec1yyy.wav --nsec 300
+  128  alsa-info 
+  129  cat /tmp/alsa-info.txt.ea9duwqtmi 
+  130  alsamixer 
+  131  python3 read_audio_to_wav.py --output rec1yyy.wav --nsec 300
+  132  view read_audio_to_wav.py 
+  133  python3 read_audio_to_wav.py --list
+  134  view read_audio_to_wav.py 
+  135  vi read_audio_to_wav.py 
+  136  python3 read_audio_to_wav.py --output rec1yyy.wav --nsec 300
+  137  python3 read_audio_to_wav.py --output rec1yyy.wav --nsec 3
+  138  ls
+  139  python3 read_audio_to_wav.py --output rec1yyy.wav --nsec 10
+  140  ls
+  141  python3 read_audio_to_wav.py --output rec10.wav --nsec 60
+  142  ls
+  143  python3 read_audio_to_wav.py --output rec10.wav --nsec 60
+  144  python3 read_audio_to_wav.py --output rec11.wav --nsec 60
+  145  python3 read_audio_to_wav.py --output rec12.wav --nsec 60
+  146  python3 read_audio_to_wav.py --output rec13.wav --nsec 60
+  147  python3 read_audio_to_wav.py --output rec14.wav --nsec 60
+  148  python3 read_audio_to_wav.py --output rec15.wav --nsec 60
+  149  python3 read_audio_to_wav.py --output rec16.wav --nsec 60
+  150  python3 read_audio_to_wav.py --output rec17.wav --nsec 60
+  151  python3 read_audio_to_wav.py --output rec18.wav --nsec 60
+  152  python3 read_audio_to_wav.py --output rec19.wav --nsec 120
+  153  python3 read_audio_to_wav.py --output rec20.wav --nsec 120
+  154  sudo reboot
+  155  sudo ufw allow 21/tcp
+  156  vi read_audio_to_wav.py 
+  157  cd audio/
+  158  ls
+  159  vi read_audio_to_wav.py 
+  160  view read_audio_to_wav.py 
+  161  python3 read_audio_to_wav.py --output test1.wav --nsec 10
+  162  view read_audio_to_wav.py 
+  163  python3 read_audio_to_wav.py --output test1.wav --nsec 10
+  164  history
+  165  history >> histry.txt
