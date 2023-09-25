@@ -159,3 +159,5 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 audios/splitted_audio/*
+another_tutorial/audio_classification_lite.tflite
+another_tutorial/audio_classification_model.h5
