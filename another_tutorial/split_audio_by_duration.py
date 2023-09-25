@@ -45,3 +45,13 @@ def split_audio_by_duration(audio_path, segment_duration = 1000):
         segment_end += segment_duration
         output_path = os.path.join(output_folder, f"{_get_new_audio_id(output_folder)}.wav")
         segment.export(output_path, format="wav")
+    
+    # Remove the original audio file
+    os.remove(audio_path)
+
+if __name__ == "__main__":
+    classes = {'positive': 0, 'negative': 1}
+    for label in classes.keys():
+        for file in os.listdir("./audios/" + label):
+            file_path = "./audios/" + label + "/" + file
+            split_audio_by_duration(file_path)

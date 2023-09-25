@@ -1,0 +1,103 @@
+
+
+
+
+Tomra COM XRT 2.0
+rec1: kleinste Öffnung - 250;10
+rec2: kleinste Öffnung - 200;20
+rec3: kleinste Öffnung - 150;25
+rec4: kleinste Öffnung - 250:100
+rec5: kleinste Öffnung - 250;200
+rec6: kleinste Öffnung - 50;15
+
+rec7: zweit kleinste Öffnung - 50;15
+rec8: zweit kleinste Öffnung - 250;200
+rec9: zweit kleinste Öffnung - 250;100
+rec10: zweit kleinste Öffnung - 150;25
+rec11: zweit kleinste Öffnung - 200;20
+rec12: zweit kleinste Öffnung - 250:10
+rec13: zweit kleinste Öffnung - 200;30
+rec14: zweit kleinste Öffnung - 250;50
+rec15: zweit kleinste Öffnung - 250;75
+rec16: zweit kleinste Öffnung - 100;30
+rec17: zweit kleinste Öffnung - 80;40
+rec18: zweit kleinste Öffnung - 150;30
+
+rec19: dritt kleinste Öffnung - 250;10
+rec20: dritt kleinste Öffnung - 200;20
+rec21: dritt kleinste Öffnung - 150;25
+rec22: dritt kleinste Öffnung - 250:100
+rec23: dritt kleinste Öffnung - 250;200
+rec24: dritt kleinste Öffnung - 50;15
+rec25: dritt kleinste Öffnung - 200;30
+rec26: dritt kleinste Öffnung - 250;50
+rec27: dritt kleinste Öffnung - 250;75
+rec28: dritt kleinste Öffnung - 100;30
+rec29: dritt kleinste Öffnung - 80;40
+rec30: dritt kleinste Öffnung - 150;30
+
+rec31: viert kleinste Öffnung - 250;10
+rec32: viert kleinste Öffnung - 200;20
+rec33: viert kleinste Öffnung - 150;25
+rec34: viert kleinste Öffnung - 250:100
+rec35: viert kleinste Öffnung - 250;200
+rec36: viert kleinste Öffnung - 50;15
+rec37: viert kleinste Öffnung - 200;30
+rec38: viert kleinste Öffnung - 250;50
+rec39: viert kleinste Öffnung - 250;75
+rec40: viert kleinste Öffnung - 100;30
+rec41: viert kleinste Öffnung - 80;40
+rec42: viert kleinste Öffnung - 150;30
+
+rec43: Blindstopfen - 250;10
+rec44: Blindstopfen - 200;20
+rec45: Blindstopfen - 150;25
+rec46: Blindstopfen - 250:100
+rec47: Blindstopfen - 250;200
+rec48: Blindstopfen - 50;15
+rec49: Blindstopfen - 200;30
+rec50: Blindstopfen - 250;50
+rec51: Blindstopfen - 250;75
+rec52: Blindstopfen - 100;30
+rec53: Blindstopfen - 80;40
+rec54: Blindstopfen - 150;30
+
+rec55: normal - 250;10
+rec56: normal - 200;20
+rec57: normal - 150;25
+rec58: normal - 250:100
+rec59: normal - 250;200
+rec60: normal - 50;15
+rec61: normal - 200;30
+rec62: normal - 250;50
+rec63: normal - 250;75
+rec64: normal - 100;30
+rec65: normal - 80;40
+rec66: normal - 150;30
+
+67: 12 - 250;10
+68: 12 - 200;20
+69: 12 - 150;25
+70: 12 - 250:100
+71: 12 - 250;200
+200: 12 - 50;15
+73: 12 - 200;30
+
+16er:
+74 - 250;10
+75 - 200;20
+76 - 150;25
+77 - 250:100
+78 - 250;200
+79 - 80;40
+80 - 80;40
+
+20er:
+81 - 250;10
+82 - 200;20
+83 - 150;25
+84 - 250;100
+85 - 250;175
+86 - 80;40
+87 - 150;30
+88 - 100;30
