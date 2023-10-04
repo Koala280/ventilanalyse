@@ -1,12 +1,16 @@
 """
-    The .tflite file of the model must be in the same file directory on the Raspberry Pi
+    The .wav file for the analysis and the .tflite file of the model must be in the same file directory on the Raspberry Pi
 """
 
-# Processing
+# Audio cutting/preparation
+from pydub import AudioSegment
+import os
+import shutil
+import numpy as np
+import math
+# Audio processing
 import tensorflow as tf
 import tensorflow_io as tfio
-import numpy as np
-import scipy.signal
 # Inference
 from tflite_runtime.interpreter import Interpreter
 # CLI
@@ -17,6 +21,108 @@ from argparse import ArgumentParser, ArgumentTypeError
 Defining functions and methods
 ----------------------------------------------------------------------
 """
+# Removes silence at the beginning of wav file
+def remove_silence_start(rec_name, output_file, silence_threshold=-46):
+    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
+    print("Cutting silence at the end of the audio file")
+
+    # Find index of first not silent sample
+    start_index = next((i for i, x in enumerate(audio) if x.dBFS > silence_threshold), None)
+
+    # Safety buffer for not cutting to much of the last valve sound
+    safety_margin = 50
+
+    if (start_index is not None) and (start_index > safety_margin):
+        # Cut silence at the beginning of the audio
+        print(f"Old audio length: {len(audio)} ms")
+        audio = audio[start_index - safety_margin:]
+        print(f"New audio length: {len(audio)} ms")
+
+        # Save edited file
+        audio.export(output_file, format="wav")
+    else:
+        print("No cutting required")
+
+# Removes silence at the end of wav file
+def remove_silence_end(rec_name, output_file, silence_threshold=-46):
+    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
+    print("Cutting silence at the end of the audio file")
+
+    # Find index of last not silent sample
+    end_index = next((len(audio) - 1 - i for i, x in enumerate(reversed(audio)) if x.dBFS > silence_threshold), None)
+
+    # Safety buffer for not cutting to much of the last valve sound
+    safety_buffer = 50
+
+    if (end_index is not None) and ((end_index + safety_buffer) < (len(audio) - 1)):
+        # Cut silence at the end of the audio
+        print(f"Old audio length: {len(audio)} ms")
+        audio = audio[:-(len(audio) - (end_index + safety_buffer) - 1)]
+        print(f"New audio length: {len(audio)} ms")
+
+        # Save edited file
+        audio.export(output_file, format="wav")
+    else:
+        print("No cutting required")
+
+# Determine the k-th percentile based on the proportion of valve noise in the audio file
+def get_percentile_dbfs(rec_name, valve_time, cycle_duration):
+    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
+
+    # Takes a sample out of the middle of the audio file for the percentile determination -> beginning/end of audio file could contain silence
+    samples = []
+    for i, x in enumerate(audio[len(audio)/2 - 4*(cycle_duration):len(audio)/2]):
+        samples.append(x.dBFS)
+
+    # Determines percentile
+    noise_percentage = 100 - (100 * (valve_time / cycle_duration))
+    percentile_dbfs = np.percentile(samples, noise_percentage)
+    percentile_dbfs = math.trunc(percentile_dbfs)
+    print(f"{noise_percentage}% of the audio file are quieter than {percentile_dbfs} dBFS")
+
+    return percentile_dbfs
+
+# Cut WAV file in equally long chunks
+def split_wav(rec_name, output_directory, valve_time, cycle_duration):
+    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
+    print("Splitting wav file into single valve sounds")
+
+    # Make sure that the output directory exists
+    # Or delete old directory from previous script execution
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+    else:
+        os.rmdir(output_directory)
+        shutil.rmtree(output_directory)
+
+        
+
+    total_duration = len(audio)
+    chunk_number = 1
+    current_position = 0
+
+    while current_position < total_duration:
+        end_position = current_position + cycle_duration
+        if end_position > total_duration:
+            end_position = total_duration
+
+        chunk = audio[current_position:end_position]
+        current_position = end_position
+
+        chunk_length = len(chunk)
+        # Fill last audio chunk with zeroes, if it's too short
+        if chunk_length < cycle_duration:
+            if chunk_length <= valve_time:
+                break
+            else:
+                chunk += AudioSegment.silent(duration=(cycle_duration - len(chunk)), frame_rate=audio.frame_rate)
+
+        print(f"New audio length: {len(audio)} ms")
+        output_file = os.path.join(output_directory, f"{rec_name}_chunk_{chunk_number}.wav")
+        chunk.export(output_file, format="wav")
+        chunk_number += 1
+    
+    print(f"{chunk_number} valve sounds detected")
 
 # Type for checking whether a float value is in the specified range    
 def float_range(minimum, maximum):
@@ -31,7 +137,7 @@ def float_range(minimum, maximum):
     return float_range_checker  
 
 # Convert to mono and resample
-def load_wav_16k_mono(filename):
+def load_16k_mono_wav(filename):
     # Load encoded wav file
     file_contents = tf.io.read_file(filename)
     # Decode wav (tensors by channels) 
@@ -44,7 +150,7 @@ def load_wav_16k_mono(filename):
     return wav
 
 # Build function to convert clips into windowed spectrograms
-def preprocess_2(sample, index):
+def preprocess_with_padding(sample, index):
     sample = sample[0]
     zero_padding = tf.zeros([16000] - tf.shape(sample), dtype=tf.float32)
     wav = tf.concat([zero_padding, sample],0)
@@ -56,9 +162,23 @@ def preprocess_2(sample, index):
 # Convert longer clips into windows and apply preprocessing
 def preprocess_slices(wav):
     audio_slices = tf.keras.utils.timeseries_dataset_from_array(wav, wav, sequence_length=16000, sequence_stride=16000, batch_size=1)
-    audio_slices = audio_slices.map(preprocess_2)
+    audio_slices = audio_slices.map(preprocess_with_padding)
     audio_slices = audio_slices.batch(64)
     return audio_slices
+
+# Load audio chunks from directory and apply preprocessing
+def preprocess_chunks(wav_chunks_dir):
+    audio_chunks = tf.keras.utils.audio_dataset_from_directory(
+                                wav_chunks_dir,
+                                labels=None,
+                                label_mode=None,
+                                batch_size=1,
+                                sampling_rate=16000,
+                                output_sequence_length=16000,
+                                shuffle=False)
+    audio_chunks = audio_chunks.map(preprocess_with_padding)
+    audio_chunks = audio_chunks.batch(128)
+    return audio_chunks
 
 # Will automatically run when this script is started from console
 def main():
@@ -100,6 +220,7 @@ def main():
     resample_rate = 16000
     model_path = 'audio_classification_lite.tflite'
     wav_path = 'valve_test.wav'
+    wav_chunks_dir = 'valve_test_chunks'
 
     """
     ML model
@@ -113,7 +234,7 @@ def main():
     output_details = interpreter.get_output_details()
 
     # Do preprocessing of audio file
-    wav = load_wav_16k_mono(wav_path)
+    wav = load_16k_mono_wav(wav_path)
     audio_slices = preprocess_slices(wav)
 
     # Set interpreter input
