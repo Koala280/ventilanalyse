@@ -3,7 +3,6 @@ import os
 from matplotlib import pyplot as plt
 import tensorflow as tf 
 import tensorflow_io as tfio
-from split_audio_by_duration import split_audio_by_duration 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, Dense, Flatten
 import datetime
@@ -30,8 +29,8 @@ def load_wav_16k_mono(filename):
 
 
 # %%
-POS = os.path.join('./', 'audios', 'positive')
-NEG = os.path.join('./', 'audios', 'negative')
+POS = os.path.join('.', 'audios', 'positive')
+NEG = os.path.join('.', 'audios', 'negative')
 
 
 # %%
