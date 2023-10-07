@@ -21,10 +21,23 @@ from argparse import ArgumentParser, ArgumentTypeError
 Defining functions and methods
 ----------------------------------------------------------------------
 """
+
+# Type for checking whether a float value is in the specified range    
+def float_range(minimum, maximum):
+    def float_range_checker(arg):
+        try:
+            value = float(arg)
+        except ValueError:    
+            raise ArgumentTypeError("must be a floating point number")
+        if value < minimum or value > maximum:
+            raise ArgumentTypeError("must be in range [" + str(minimum) + " .. " + str(maximum)+"]")
+        return value
+    return float_range_checker  
+
 # Removes silence at the beginning of wav file
-def remove_silence_start(rec_name, output_file, silence_threshold=-46):
-    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
-    print("Cutting silence at the end of the audio file")
+def remove_silence_start(wav_path, output_file, silence_threshold=-46):
+    audio = AudioSegment.from_wav(wav_path)
+    print("Cutting silence at the beginning of the audio file...")
 
     # Find index of first not silent sample
     start_index = next((i for i, x in enumerate(audio) if x.dBFS > silence_threshold), None)
@@ -36,17 +49,17 @@ def remove_silence_start(rec_name, output_file, silence_threshold=-46):
         # Cut silence at the beginning of the audio
         print(f"Old audio length: {len(audio)} ms")
         audio = audio[start_index - safety_margin:]
-        print(f"New audio length: {len(audio)} ms")
-
-        # Save edited file
-        audio.export(output_file, format="wav")
+        print(f"New audio length: {len(audio)} ms\n")
     else:
-        print("No cutting required")
+        print("No cutting required\n")
+
+    # Save edited file
+    audio.export(output_file, format="wav")
 
 # Removes silence at the end of wav file
-def remove_silence_end(rec_name, output_file, silence_threshold=-46):
-    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
-    print("Cutting silence at the end of the audio file")
+def remove_silence_end(wav_path, output_file, silence_threshold=-46):
+    audio = AudioSegment.from_wav(wav_path)
+    print("Cutting silence at the end of the audio file...")
 
     # Find index of last not silent sample
     end_index = next((len(audio) - 1 - i for i, x in enumerate(reversed(audio)) if x.dBFS > silence_threshold), None)
@@ -58,16 +71,16 @@ def remove_silence_end(rec_name, output_file, silence_threshold=-46):
         # Cut silence at the end of the audio
         print(f"Old audio length: {len(audio)} ms")
         audio = audio[:-(len(audio) - (end_index + safety_buffer) - 1)]
-        print(f"New audio length: {len(audio)} ms")
-
-        # Save edited file
-        audio.export(output_file, format="wav")
+        print(f"New audio length: {len(audio)} ms\n")
     else:
-        print("No cutting required")
+        print("No cutting required\n")
+
+    # Save edited file
+    audio.export(output_file, format="wav")
 
 # Determine the k-th percentile based on the proportion of valve noise in the audio file
-def get_percentile_dbfs(rec_name, valve_time, cycle_duration):
-    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
+def get_percentile_dbfs(wav_path, valve_time, cycle_duration, correction_factor=0.9):
+    audio = AudioSegment.from_wav(wav_path)
 
     # Takes a sample out of the middle of the audio file for the percentile determination -> beginning/end of audio file could contain silence
     samples = []
@@ -79,23 +92,24 @@ def get_percentile_dbfs(rec_name, valve_time, cycle_duration):
     percentile_dbfs = np.percentile(samples, noise_percentage)
     percentile_dbfs = math.trunc(percentile_dbfs)
     print(f"{noise_percentage}% of the audio file are quieter than {percentile_dbfs} dBFS")
+    
+    # Applying correction factor
+    percentile_dbfs *= correction_factor
+    print(f"The dBFS with a correction factor of {correction_factor} is {percentile_dbfs}\n")
 
     return percentile_dbfs
 
 # Cut WAV file in equally long chunks
-def split_wav(rec_name, output_directory, valve_time, cycle_duration):
-    audio = AudioSegment.from_wav(os.path.join(os.path.dirname(__file__), f"..\\..\\recordings\\{rec_name}.wav"))
-    print("Splitting wav file into single valve sounds")
+def split_wav(wav_path, output_directory, valve_time, cycle_duration):
+    audio = AudioSegment.from_wav(wav_path)
+    print("Splitting wav file into single valve sounds...")
 
     # Make sure that the output directory exists
     # Or delete old directory from previous script execution
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
     else:
-        os.rmdir(output_directory)
         shutil.rmtree(output_directory)
-
-        
 
     total_duration = len(audio)
     chunk_number = 1
@@ -122,19 +136,7 @@ def split_wav(rec_name, output_directory, valve_time, cycle_duration):
         chunk.export(output_file, format="wav")
         chunk_number += 1
     
-    print(f"{chunk_number} valve sounds detected")
-
-# Type for checking whether a float value is in the specified range    
-def float_range(minimum, maximum):
-    def float_range_checker(arg):
-        try:
-            value = float(arg)
-        except ValueError:    
-            raise ArgumentTypeError("must be a floating point number")
-        if value < minimum or value > maximum:
-            raise ArgumentTypeError("must be in range [" + str(minimum) + " .. " + str(maximum)+"]")
-        return value
-    return float_range_checker  
+    print(f"{chunk_number} valve sounds detected\n")
 
 # Convert to mono and resample
 def load_16k_mono_wav(filename):
@@ -151,6 +153,25 @@ def load_16k_mono_wav(filename):
 
 # Build function to convert clips into windowed spectrograms
 def preprocess_with_padding(sample, index):
+    sample = sample[0]
+    zero_padding = tf.zeros([16000] - tf.shape(sample), dtype=tf.float32)
+    wav = tf.concat([zero_padding, sample],0)
+    spectrogram = tf.signal.stft(wav, frame_length=320, frame_step=32)
+    spectrogram = tf.abs(spectrogram)
+    spectrogram = tf.expand_dims(spectrogram, axis=2)
+    return spectrogram
+
+# Build function to convert clips into windowed spectrograms 
+# Usage: without load_16k_mono_wav
+def preprocess_with_padding_dir_data(wav, index):
+    # Removes trailing axis
+    wav = tf.squeeze(wav, axis=-1)
+    sample_rate = tf.cast(sample_rate, dtype=tf.int64)
+    # Goes from 44100Hz to 16000hz - amplitude of the audio signal
+    # wav = tfio.audio.resample(wav, rate_in=sample_rate, rate_out=16000)
+
+    sample = wav
+
     sample = sample[0]
     zero_padding = tf.zeros([16000] - tf.shape(sample), dtype=tf.float32)
     wav = tf.concat([zero_padding, sample],0)
@@ -176,7 +197,7 @@ def preprocess_chunks(wav_chunks_dir):
                                 sampling_rate=16000,
                                 output_sequence_length=16000,
                                 shuffle=False)
-    audio_chunks = audio_chunks.map(preprocess_with_padding)
+    audio_chunks = audio_chunks.map(preprocess_with_padding_dir_data)
     audio_chunks = audio_chunks.batch(128)
     return audio_chunks
 
@@ -232,6 +253,8 @@ def main():
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
+
+    # Cutting/preparation of audio file
 
     # Do preprocessing of audio file
     wav = load_16k_mono_wav(wav_path)
