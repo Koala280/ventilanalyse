@@ -1,0 +1,8 @@
+working machine:
+val1-val12
+cycle_duration: 100
+valve_time: 10
+machine with malfunctioning valves:
+val14-val33
+cycle_duration: 200
+valve_time: 20
