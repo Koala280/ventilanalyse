@@ -163,3 +163,6 @@ another_tutorial/audio_classification_lite.tflite
 another_tutorial/audio_classification_model.h5
 valve_analyzer.py
 another_tutorial/convert_model_to_tf_lite.py
+another_tutorial/audio_segments_test_centrum/
+another_tutorial/audio_segments_test_centrum_reduced/
+another_tutorial/*.keras
