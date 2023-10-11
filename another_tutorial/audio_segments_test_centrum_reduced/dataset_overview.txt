@@ -1,0 +1,15 @@
+smallest opening
+---------------
+rec1 - rec6
+
+second smallest opening
+---------------
+rec7 - rec18
+
+dummy plug
+---------------
+rec43 - rec54
+
+normal
+---------------
+rec55 - rec66
